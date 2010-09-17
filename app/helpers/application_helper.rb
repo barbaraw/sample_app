@@ -12,7 +12,8 @@ module ApplicationHelper
     if @title.nil?
       base_title
     else
-      "#{base_title} | #{@title}"
+      #The h method converts, e.g., <script> to &lt;script&gt;, rendering any malicious scripts completely harmless
+      "#{base_title} | #{h(@title)}"
     end
   end
   
