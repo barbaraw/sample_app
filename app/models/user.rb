@@ -40,11 +40,18 @@ class User < ActiveRecord::Base
   # Return true if the user's password matches the submitted password.
   def has_password?(submitted_password)
     encrypted_password == encrypt(submitted_password)
-  end  
+  end 
+  
+  def remember_me!
+    self.remember_token = encrypt("#{salt}--#{id}--#{Time.now.utc}")
+    #store the remember token in the database. can't use save method as no virtual
+    #password present when remember_me! called
+    save_without_validation
+  end 
   
   #class method
   def self.authenticate(email,submitted_password)
-    user.find_by_email(email)
+    user = find_by_email(email)
     return nill if user.nil?
     return user if user.has_password?(submitted_password)
     #end of method automatically returns nil
@@ -58,10 +65,12 @@ class User < ActiveRecord::Base
   
     #perform encryption
     def encrypt_password
-      #must use self when assigning to an attribut, as otherwise would be defining a local variable
-      #could do self.password but self not needed when accessing variable here
-      self.salt = make_salt
-      self.encrypted_password = encrypt(password)
+      unless password.nil? #will be nill when called before save_without_validation
+        #must use self when assigning to an attribute, as otherwise would be defining a local variable
+        #could do self.password but self not needed when accessing variable here
+        self.salt = make_salt
+        self.encrypted_password = encrypt(password)
+      end
     end
 
     def encrypt(string)
