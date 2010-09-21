@@ -1,6 +1,6 @@
-<h2>Sign up</h2>
+<h2>Edit user</h2>
 
-<!--form_for(@user) allows Rails to infer that the action of the form should be to POST to the URL /users-->
+
 <% form_for(@user) do |f| %>
   <%= f.error_messages %>
   <div class="field">
@@ -20,6 +20,11 @@
     <%= f.password_field :password_confirmation %>
   </div>
   <div class="actions">
-    <%= f.submit "Sign up" %>
+    <%= f.submit "Update" %>
   </div>
 <% end %>
+
+<div>
+  <%= gravatar_for @user %>
+  <a href="http://gravatar.com/emails">change</a>
+</div>
