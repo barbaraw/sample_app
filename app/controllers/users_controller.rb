@@ -2,6 +2,7 @@ class UsersController < ApplicationController
   before_filter :authenticate, :only => [:index, :edit, :update]
   before_filter :correct_user, :only => [:edit, :update]
   before_filter :admin_user, :only => [:destroy]
+  before_filter :new_user, :only => [:new, :create]
   
   def index
     @title = "All users"
@@ -51,9 +52,14 @@ class UsersController < ApplicationController
   end  
   
   def destroy
-    User.find(params[:id]).destroy
-    flash[:success] = "User destroyed."
-    redirect_to users_path 
+    user = User.find(params[:id])
+    if user.admin?
+      flash[:notice] = "Cannot delete administrator"
+    else
+      user.destroy
+      flash[:success] = "User destroyed." 
+    end
+    redirect_to users_path
   end
   
   private
@@ -61,6 +67,14 @@ class UsersController < ApplicationController
     def authenticate
       deny_access unless signed_in?
     end  
+    
+    #Signed-in users have no reason to access the new and create actions in the Users controller
+    def new_user
+      if signed_in?
+        flash[:notice] = "Already signed in"
+        redirect_to(root_path)
+      end
+    end
     
     def correct_user
       @user = User.find(params[:id])
