@@ -19,6 +19,9 @@ class User < ActiveRecord::Base
   #which attributes can be modified by outside users 
   attr_accessible :name, :email, :password, :password_confirmation
   
+  #delete a users microposts when it is deleted
+  has_many :microposts, :dependent => :destroy
+  
   # Automatically create the virtual attribute 'password_confirmation'.
   # (virtual as only encypted password written to database)
   validates_confirmation_of :password
@@ -60,6 +63,11 @@ class User < ActiveRecord::Base
   
   #register a callback called encypt_password
   before_save :encrypt_password
+  
+  def feed
+    # This is preliminary.
+    Micropost.all(:conditions => ["user_id = ?", id])
+  end
 
   private
   

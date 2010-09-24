@@ -51,6 +51,8 @@ ActionController::Routing::Routes.draw do |map|
   map.help    '/help',    :controller => 'pages', :action => 'help'
   map.signup  '/signup',  :controller => 'users', :action => 'new'
   
+  map.resources :microposts, :only => [:create, :destroy]
+  
   map.root :controller => 'pages', :action => 'home'
   
   

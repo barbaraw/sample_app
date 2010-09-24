@@ -13,6 +13,8 @@ class UsersController < ApplicationController
   
   def show
     @user = User.find(params[:id])
+    @microposts = @user.microposts.paginate(:page => params[:page])
+    @title = CGI.escapeHTML(@user.name)
   end
 
   def new
@@ -62,11 +64,7 @@ class UsersController < ApplicationController
     redirect_to users_path
   end
   
-  private
-    #must be signed in to edit and update user info
-    def authenticate
-      deny_access unless signed_in?
-    end  
+  private 
     
     #Signed-in users have no reason to access the new and create actions in the Users controller
     def new_user
