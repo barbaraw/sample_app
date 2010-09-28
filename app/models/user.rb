@@ -22,6 +22,22 @@ class User < ActiveRecord::Base
   #delete a users microposts when it is deleted
   has_many :microposts, :dependent => :destroy
   
+  #need to explicitly tell Rails the foreign key as default is user_id
+  has_many :relationships, :foreign_key => "follower_id", :dependent => :destroy
+  
+  #default would be to treat "followeds" as plural of followed, use :source
+  #parameter to override this as "following" better.
+  #i.e. source of the following array is the set of followed ids. 
+  has_many :following, :through => :relationships, :source => :followed
+  
+  #have to include class name otherwise rails looks for ReverseRelationships class
+  has_many :reverse_relationships, :foreign_key => "followed_id",
+                                   :class_name => "Relationship",
+                                   :dependent => :destroy
+  #could omit source in this case 
+  has_many :followers, :through => :reverse_relationships, :source => :follower
+  
+  
   # Automatically create the virtual attribute 'password_confirmation'.
   # (virtual as only encypted password written to database)
   validates_confirmation_of :password
@@ -59,15 +75,28 @@ class User < ActiveRecord::Base
     return user if user.has_password?(submitted_password)
     #end of method automatically returns nil
   end
+  
+  
+  def following?(followed)
+    relationships.find_by_followed_id(followed)
+  end
+
+  # ! indicates exception raised on failure
+  def follow!(followed)
+    relationships.create!(:followed_id => followed.id)
+  end
+  
+  def unfollow!(followed)
+    relationships.find_by_followed_id(followed).destroy
+  end
+  
+  def feed
+    Micropost.from_users_followed_by(self)
+  end
      
   
   #register a callback called encypt_password
   before_save :encrypt_password
-  
-  def feed
-    # This is preliminary.
-    Micropost.all(:conditions => ["user_id = ?", id])
-  end
 
   private
   
