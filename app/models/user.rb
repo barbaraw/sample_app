@@ -1,16 +1,20 @@
-# use annotate-model gem to generate this info
-
 # == Schema Information
-# Schema version: <timestamp>
+# Schema version: 20100924100245
 #
 # Table name: users
 #
-#  id         :integer         not null, primary key
-#  name       :string(255)
-#  email      :string(255)
-#  created_at :datetime
-#  updated_at :datetime
+#  id                 :integer         not null, primary key
+#  name               :string(255)
+#  email              :string(255)
+#  created_at         :datetime
+#  updated_at         :datetime
+#  encrypted_password :string(255)
+#  salt               :string(255)
+#  remember_token     :string(255)
+#  admin              :boolean
 #
+
+
 
 class User < ActiveRecord::Base
   attr_accessor :password #provides getter and setter methods
@@ -54,6 +58,7 @@ class User < ActiveRecord::Base
   validates_format_of   :email, :with => EmailRegex
   #nb hitting submit twice can cause 2 identical records to be present
   #in db, so need to create database index on email column as well
+  #also helps to speed up retrieval by email
   validates_uniqueness_of :email, :case_sensitive => false
 
   # Return true if the user's password matches the submitted password.
